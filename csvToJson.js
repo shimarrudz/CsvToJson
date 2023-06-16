@@ -21,3 +21,10 @@ function readCSV(filePath) {
 
   return data;
 }
+
+// Função que converte para JSON
+function convertToJSON(filePath) {
+  const data = readCSV(filePath);
+  const jsonData = JSON.stringify(data, null, 2);
+  return jsonData;
+}
