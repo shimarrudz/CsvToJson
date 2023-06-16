@@ -1,7 +1,7 @@
 // Importing fs
 import fs from 'fs';
 
-// Função that reads a CSV file
+// Function that reads a CSV file
 function readCSV(filePath) {
   const fileData = fs.readFileSync(filePath, 'utf-8');
   const rows = fileData.split('\n');
