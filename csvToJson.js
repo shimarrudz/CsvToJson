@@ -1,7 +1,7 @@
-// Importando o fs
+// Importing fs
 import fs from 'fs';
 
-// Função que lê o o arquivo CSV
+// Função that reads a CSV file
 function readCSV(filePath) {
   const fileData = fs.readFileSync(filePath, 'utf-8');
   const rows = fileData.split('\n');
@@ -22,9 +22,31 @@ function readCSV(filePath) {
   return data;
 }
 
-// Função que converte para JSON
+// Function that convert to JSON
 function convertToJSON(filePath) {
   const data = readCSV(filePath);
   const jsonData = JSON.stringify(data, null, 2);
   return jsonData;
 }
+
+// Function that has 2 params, inputFolder and outputFolder
+function convertCSVFilesToJSON(inputFolder, outputFolder) {
+  const files = fs.readdirSync(inputFolder);
+
+  files.forEach((file) => {
+    if (file.endsWith('.csv')) {
+      const csvFilePath = `${inputFolder}/${file}`;
+      const jsonFilePath = `${outputFolder}/${file.replace('.csv', '.json')}`;
+
+      const jsonData = convertToJSON(csvFilePath);
+      fs.writeFileSync(jsonFilePath, jsonData);
+    }
+  });
+
+  console.log('The input files, has been converted successfuly');
+}
+
+const inputFolder = './input';  // Input folder, receives CSV files.
+const outputFolder = './output';  // Output folder, of JSON files.
+
+convertCSVFilesToJSON(inputFolder, outputFolder);
