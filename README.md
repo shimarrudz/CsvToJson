@@ -77,7 +77,7 @@ The following technologies are used in this project:
 #### React
 #### HTML
 #### CSS
-#### JavaScript
+#### JavaScript 
 #### Typescript
 
 ## 🤝 Contributing
