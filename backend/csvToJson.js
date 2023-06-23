@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+// tirar todas as funcionalidades
 function readCSV(filePath) {
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, 'utf-8', (error, fileData) => {
@@ -10,11 +11,13 @@ function readCSV(filePath) {
       }
 
       const rows = splitIntoRows(fileData);
+      // Armazenar isso numa variável mágica
       if (rows.length === 0) {
         reject(new Error('CSV file is empty'));
         return;
       }
 
+      // Armazenar isso numa variável
       const headers = splitIntoColumns(rows[0]);
       if (headers.length === 0) {
         reject(new Error('CSV file has no header'));
@@ -61,6 +64,7 @@ async function convertCSVFilesToJSON(inputFolder, outputFolder) {
         try {
           const data = await readCSV(csvFilePath);
           const jsonData = JSON.stringify(data, null, 2);
+          // Validação de existencia da pasta
           await fs.promises.writeFile(jsonFilePath, jsonData);
           console.log(`Converted ${file} to JSON successfully.`);
         } catch (error) {
@@ -69,6 +73,7 @@ async function convertCSVFilesToJSON(inputFolder, outputFolder) {
       }
     }
 
+    // Tratativa de erro aprimorada
     console.log('All CSV files have been successfully converted to JSON.');
   } catch (error) {
     console.error(`Error reading input folder: ${error.message}`);
