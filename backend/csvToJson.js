@@ -1,52 +1,81 @@
-// Importing fs
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 
-// Function that reads a CSV file
 function readCSV(filePath) {
-  const fileData = fs.readFileSync(filePath, 'utf-8');
-  const rows = fileData.split('\n');
-  const headers = rows[0].split(',');
-
-  const data = [];
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i].split(',');
-    if (row.length === headers.length) {
-      const item = {};
-      for (let j = 0; j < headers.length; j++) {
-        item[headers[j]] = row[j];
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf-8', (error, fileData) => {
+      if (error) {
+        reject(new Error(`Error reading CSV file: ${error.message}`));
+        return;
       }
-      data.push(item);
-    }
-  }
 
-  return data;
-}
+      const rows = splitIntoRows(fileData);
+      if (rows.length === 0) {
+        reject(new Error('CSV file is empty'));
+        return;
+      }
 
-// Function that convert to JSON
-function convertToJSON(filePath) {
-  const data = readCSV(filePath);
-  const jsonData = JSON.stringify(data, null, 2);
-  return jsonData;
-}
+      const headers = splitIntoColumns(rows[0]);
+      if (headers.length === 0) {
+        reject(new Error('CSV file has no header'));
+        return;
+      }
 
-// Function that has 2 params, inputFolder and outputFolder
-function convertCSVFilesToJSON(inputFolder, outputFolder) {
-  const files = fs.readdirSync(inputFolder);
-
-  files.forEach((file) => {
-    if (file.endsWith('.csv')) {
-      const csvFilePath = `${inputFolder}/${file}`;
-      const jsonFilePath = `${outputFolder}/${file.replace('.csv', '.json')}`;
-
-      const jsonData = convertToJSON(csvFilePath);
-      fs.writeFileSync(jsonFilePath, jsonData);
-    }
+      const data = extractData(rows.slice(1), headers);
+      resolve(data);
+    });
   });
-
-  console.log('The input files, has been converted successfuly');
 }
 
-const inputFolder = './input';  // Input folder, receives CSV files.
-const outputFolder = './output';  // Output folder, of JSON files.
+function splitIntoRows(fileData) {
+  return fileData.split('\r\n');
+}
+
+function splitIntoColumns(row) {
+  return row.split(',');
+}
+
+function extractData(rows, headers) {
+  return rows.reduce((result, row) => {
+    const values = splitIntoColumns(row);
+    if (values.length === headers.length) {
+      const item = headers.reduce((obj, header, index) => {
+        obj[header] = values[index];
+        return obj;
+      }, {});
+      result.push(item);
+    }
+    return result;
+  }, []);
+}
+
+async function convertCSVFilesToJSON(inputFolder, outputFolder) {
+  try {
+    const files = await fs.promises.readdir(inputFolder);
+
+    for (const file of files) {
+      if (file.endsWith('.csv')) {
+        const csvFilePath = path.join(inputFolder, file);
+        const jsonFilePath = path.join(outputFolder, file.replace('.csv', '.json'));
+
+        try {
+          const data = await readCSV(csvFilePath);
+          const jsonData = JSON.stringify(data, null, 2);
+          await fs.promises.writeFile(jsonFilePath, jsonData);
+          console.log(`Converted ${file} to JSON successfully.`);
+        } catch (error) {
+          console.error(`Error converting ${file} to JSON: ${error.message}`);
+        }
+      }
+    }
+
+    console.log('All CSV files have been successfully converted to JSON.');
+  } catch (error) {
+    console.error(`Error reading input folder: ${error.message}`);
+  }
+}
+
+const inputFolder = './input';
+const outputFolder = './output';
 
 convertCSVFilesToJSON(inputFolder, outputFolder);

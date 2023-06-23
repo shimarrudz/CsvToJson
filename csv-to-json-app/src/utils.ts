@@ -4,7 +4,7 @@ function convertCSVToJSON(file: File): Promise<string> {
       reader.onload = (event) => {
         if (event.target?.result) {
           const fileData = event.target.result as string;
-          const rows = fileData.split('\n');
+          const rows = fileData.split('\r\n');
           const headers = rows[0].split(',');
   
           const data: any[] = [];
