@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Segundo desafio proposto, para realizar uma conversão de um arquivo CSV para JSON",
   "main": "index.js",
+  "type": "module",
+
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
